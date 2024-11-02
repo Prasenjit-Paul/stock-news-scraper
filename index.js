@@ -5,13 +5,17 @@ const TelegramBot = require('node-telegram-bot-api');
 
 const scrapRoute = require("./routes/scrap.route");
 const { isValidUrl } = require('./utils/checkUrl.util');
-const { scrap } = require('./contoller/scrapping.controller');
+const { scrap } = require('./controller/scrapping.controller');
 
 app.use(function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept,app-id,x-access-token");
     next();
 });
+
+require("./models/mongo.db");
+
+require("./cron/linkFetch.cron");
 
 app.get('/', (req, res) => {
     res.send('Hello World!')
