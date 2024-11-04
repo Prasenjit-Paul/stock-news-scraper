@@ -19,10 +19,7 @@ exports.getLinksOfMint = async (req, res) => {
         })
 
         if (linkData) {
-            console.log("here", linkData);
             const findUrl = await linkModel.findOne({ url: linkData });
-            console.log(findUrl);
-
             if (findUrl) {
                 return;
             } else {
