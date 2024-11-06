@@ -16,6 +16,7 @@ app.use(function (req, res, next) {
 require("./models/mongo.db");
 
 require("./cron/linkFetch.cron");
+require("./cron/summarizeAndSendMessage.corn")
 
 app.get('/', (req, res) => {
     res.send('Hello World!')
@@ -27,18 +28,18 @@ app.listen(process.env.PORT, () => {
     console.log(`Scrapping app listening on port ${process.env.PORT}`);
 });
 
-const token = process.env.TELEGRAM_BOT_TOKEN;
-const bot = new TelegramBot(token, { polling: true });
+// const token = process.env.TELEGRAM_BOT_TOKEN;
+// const bot = new TelegramBot(token, { polling: true });
 
-bot.on('message', (msg) => {
-    const chatId = msg.chat.id;
+// bot.on('message', (msg) => {
+//     const chatId = msg.chat.id;
 
-    if (msg?.text) {
-        let urlCheck = isValidUrl(msg?.text);
+//     if (msg?.text) {
+//         let urlCheck = isValidUrl(msg?.text);
 
-        if (urlCheck) {
-            bot.sendMessage(chatId, msg?.text);
-        }
+//         if (urlCheck) {
+//             bot.sendMessage(chatId, msg?.text);
+//         }
 
-    }
-});
+//     }
+// });
