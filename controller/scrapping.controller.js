@@ -148,5 +148,5 @@ async function processItemsWithInterval(items) {
         } catch (error) {
             console.log(error);
         }
-    }, 6000);
+    }, 20000);
 }
