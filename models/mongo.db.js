@@ -13,7 +13,7 @@ conn.on('error', (err) => {
 });
 
 conn.once('open', () => {
-    console.log('Connected to MongoDB');
+    console.log('Open to MongoDB');
 });
 
 module.exports = conn
