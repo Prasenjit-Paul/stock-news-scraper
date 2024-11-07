@@ -4,8 +4,8 @@ const dotenv = require('dotenv').config();
 const TelegramBot = require('node-telegram-bot-api');
 
 const scrapRoute = require("./routes/scrap.route");
+const linkRoute = require("./routes/linkFetch.route")
 const { isValidUrl } = require('./utils/checkUrl.util');
-const { scrap } = require('./controller/scrapping.controller');
 
 app.use(function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
@@ -22,7 +22,9 @@ app.get('/', (req, res) => {
     res.send('Hello World!')
 });
 
-app.use("/scrapping", scrapRoute)
+app.use("/scrapping", scrapRoute);
+
+app.use("/link-fetch", linkRoute);
 
 app.listen(process.env.PORT, () => {
     console.log(`Scrapping app listening on port ${process.env.PORT}`);
