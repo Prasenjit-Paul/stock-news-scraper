@@ -5,7 +5,7 @@ cron.schedule('*/30 8-20 * * *', async () => {
     console.log("Starting mint link fetching...");
     await linkController.getMarketLinkOfMint();
 }, { timezone: 'Asia/Kolkata' });
-cron.schedule('*/32 8-20 * * *', async () => {
+cron.schedule('*/30 8-20 * * *', async () => {
     console.log("Starting financial express link fetching...");
     await linkController.getMarketLinkOfFinancialExpress();
 }, { timezone: 'Asia/Kolkata' });
