@@ -200,6 +200,6 @@ async function summarizeAndSendFinancialExpressNews(items) {
 }
 
 exports.botChecker = async (req, res) => {
-    const finalMessage = `<b>This Message Is Only For Checking .</b>\nCurrent Time : ${new Date()}\n**This Message Will Come On Every 30 Minutes**\n`;
+    const finalMessage = `<b>This Message Is Only For Checking .</b>\nCurrent Time : ${new Date()}\n**This Message Will Come On Every 1Hour**\n`;
     bot.sendMessage(process.env.CHAT_ID, finalMessage, { parse_mode: 'HTML' });
 }
