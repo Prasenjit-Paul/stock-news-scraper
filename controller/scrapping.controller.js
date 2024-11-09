@@ -198,3 +198,8 @@ async function summarizeAndSendFinancialExpressNews(items) {
         }
     }, 20000);
 }
+
+exports.botChecker = async (req, res) => {
+    const finalMessage = `<b>This Message Is Only For Checking .</b>\nCurrent Time : ${new Date()}\n**This Message Will Come On Every 30 Minutes**\n`;
+    bot.sendMessage(process.env.CHAT_ID, finalMessage, { parse_mode: 'HTML' });
+}
