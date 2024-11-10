@@ -13,7 +13,6 @@ cron.schedule('*/12 8-20 * * *', async () => {
 
 cron.schedule('0 * * * *', async () => {
     console.log("Checking...");
-    await scrapController.botChecker();
 }, { timezone: 'Asia/Kolkata' });
 
 module.exports = cron
