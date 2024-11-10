@@ -16,7 +16,8 @@ app.use(function (req, res, next) {
 require("./models/mongo.db");
 
 require("./cron/linkFetch.cron");
-require("./cron/summarizeAndSendMessage.corn")
+require("./cron/summarizeAndSendMessage.corn");
+require("./cron/removeItems.cron");
 
 app.get('/', (req, res) => {
     res.send('Hello World!')

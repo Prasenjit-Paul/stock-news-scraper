@@ -77,7 +77,7 @@ exports.scrap = async (req, res) => {
 };
 
 exports.mintNewsScrap = async (req, res) => {
-    let linksList = await linkModel.find({ source: "MINT-MARKET" });
+    let linksList = await linkModel.find({ source: "MINT-MARKET", status: "PENDING" });
 
     if (linksList?.length === 0) {
         res.json({
@@ -129,7 +129,7 @@ async function summarizeAndSendMintNews(items) {
                 const finalMessage = `<b>${result?.heading}</b>\n${result?.content?.toString()}\nSee Full article : <a href='${url}'>Here</a>`;
                 bot.sendMessage(process.env.CHAT_ID, finalMessage, { parse_mode: 'HTML' });
             }
-            const deleteLinkFromCollection = await linkModel.deleteOne({ _id: items[index]?._id });
+            const updateItemStatus = await linkModel.updateOne({ _id: items[index]?._id }, { status: 'DONE' });
             index++;
         } catch (error) {
             console.log(error);
@@ -138,7 +138,7 @@ async function summarizeAndSendMintNews(items) {
 }
 
 exports.financialExpressMarketNewsScrap = async (req, res) => {
-    let linksList = await linkModel.find({ source: "FINANCIAL-EXPRESS-MARKET" });
+    let linksList = await linkModel.find({ source: "FINANCIAL-EXPRESS-MARKET", status: "PENDING" });
     if (linksList?.length === 0) {
         res.json({
             status: 'SUCCESS',
@@ -168,7 +168,6 @@ async function summarizeAndSendFinancialExpressNews(items) {
                 return;
             }
             const url = items[index].url;
-            console.log(url);
 
             const scrapedData = await getHtml(url);
             const $ = cheerio.load(scrapedData);
@@ -191,7 +190,7 @@ async function summarizeAndSendFinancialExpressNews(items) {
                 const finalMessage = `<b>${result?.heading}</b>\n${result?.content?.toString()}\nSee Full article : <a href='${url}'>Here</a>`;
                 bot.sendMessage(process.env.CHAT_ID, finalMessage, { parse_mode: 'HTML' });
             }
-            const deleteLinkFromCollection = await linkModel.deleteOne({ _id: items[index]?._id });
+            const updateItemStatus = await linkModel.updateOne({ _id: items[index]?._id }, { status: 'DONE' });
             index++;
         } catch (error) {
             console.log(error);
@@ -199,7 +198,17 @@ async function summarizeAndSendFinancialExpressNews(items) {
     }, 20000);
 }
 
-exports.botChecker = async (req, res) => {
-    const finalMessage = `<b>This Message Is Only For Checking .</b>\nCurrent Time : ${new Date()}\n**This Message Will Come On Every 1Hour**\n`;
-    bot.sendMessage(process.env.CHAT_ID, finalMessage, { parse_mode: 'HTML' });
-}
+// exports.botChecker = async (req, res) => {
+//     const finalMessage = `<b>This Message Is Only For Checking .</b>\nCurrent Time : ${new Date()}\n**This Message Will Come On Every 1Hour**\n`;
+//     bot.sendMessage(process.env.CHAT_ID, finalMessage, { parse_mode: 'HTML' });
+// }
+
+exports.deleteDoneItems = async (req, res) => {
+    await linkModel.deleteMany({ status: "DONE" });
+    res.json({
+        status: 'SUCCESS',
+        message: "Done items deleted successfully",
+        data: null,
+        responseCode: 200
+    });
+};
