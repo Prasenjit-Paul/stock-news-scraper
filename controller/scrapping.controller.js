@@ -116,7 +116,7 @@ async function summarizeAndSendMintNews(items) {
             let heading = $('#article-0').text();
             let keywordArray = keyWords ? keyWords.split(',').map(item => item.trim()) : null;
             let allPTags = [];
-            if (checkKeyword(keywordArray ? keywordArray : heading)) {
+            if (checkKeyword(keywordArray, heading)) {
                 $('.storyPage_storyContent__m_MYl').each((index, data) => {
                     allPTags.push($(data).find('p').text());
                 });
@@ -177,7 +177,7 @@ async function summarizeAndSendFinancialExpressNews(items) {
             let heading = $('.heading-three').text();
             let keywordArray = keyWords ? keyWords.split(',').map(item => item.trim()) : null;
             let allPTags = [];
-            if (checkKeyword(keywordArray ? keywordArray : heading)) {
+            if (checkKeyword(keywordArray, heading)) {
                 $('.article-section').each((index, data) => {
                     allPTags.push($(data).find('p').text());
                 });
