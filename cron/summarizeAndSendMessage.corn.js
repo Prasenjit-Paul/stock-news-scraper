@@ -21,7 +21,7 @@ cron.schedule('*/12 8-20 * * *', async () => {
 }, { timezone: 'Asia/Kolkata' });
 
 cron.schedule('0 * * * *', async () => {
-    console.log("Checking...,kolkataTime");
+    console.log("Checking...", kolkataTime);
 }, { timezone: 'Asia/Kolkata' });
 
 module.exports = cron
