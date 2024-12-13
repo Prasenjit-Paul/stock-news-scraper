@@ -121,7 +121,7 @@ async function summarizeAndSendMintNews(items) {
                     allPTags.push($(data).find('p').text());
                 });
                 const promptForHeading = "Please summarize this given news Heading in most human readable format within 20 words " + heading;
-                const promptForContent = "Please summarize this given news article in most human readable format within 100 words " + allPTags;
+                const promptForContent = "Please summarize this given news article in most human readable format within 60 words " + allPTags;
                 const respHeading = await model.generateContent(promptForHeading);
                 const respContent = await model.generateContent(promptForContent);
                 result.heading = respHeading.response.text();
@@ -182,7 +182,7 @@ async function summarizeAndSendFinancialExpressNews(items) {
                     allPTags.push($(data).find('p').text());
                 });
                 const promptForHeading = "Please summarize this given news Heading in most human readable format within 20 words " + heading;
-                const promptForContent = "Please summarize this given news article in most human readable format within 100 words " + allPTags;
+                const promptForContent = "Please summarize this given news article in most human readable format within 60 words " + allPTags;
                 const respHeading = await model.generateContent(promptForHeading);
                 const respContent = await model.generateContent(promptForContent);
                 result.heading = respHeading.response.text();
