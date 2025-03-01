@@ -99,6 +99,61 @@ exports.mintNewsScrap = async (req, res) => {
     }
 }
 
+// async function summarizeAndSendMintNews(items) {
+//     let index = 0;
+//     const intervalId = setInterval(async () => {
+//         try {
+//             if (index >= items.length) {
+//                 clearInterval(intervalId);
+//                 return;
+//             }
+//             const url = items[index].url;
+//             const scrapedData = await getHtml(url);
+//             const $ = cheerio.load(scrapedData);
+//             let result = {};
+//             let keyWords = $('meta[name="keywords"]').attr('content');
+//             result.keyWords = keyWords;
+//             let heading = $('#article-0').text();
+//             let keywordArray = keyWords ? keyWords.split(',').map(item => item.trim()) : null;
+//             let allPTags = [];
+//             if (checkKeyword(keywordArray, heading)) {
+//                 $('.storyPage_storyContent__m_MYl').each((index, data) => {
+//                     allPTags.push($(data).find('p').text());
+//                 });
+//                 const promptForHeading = "Please summarize this given news Heading in most human readable format within 20 words " + heading;
+//                 const promptForContent = "Please summarize this given news article in most human readable format within 60 words " + allPTags;
+//                 const respHeading = await model.generateContent(promptForHeading);
+//                 const respContent = await model.generateContent(promptForContent);
+//                 result.heading = respHeading.response.text();
+//                 result.content = respContent.response.text();
+//                 const finalMessage = `<b>${result?.heading}</b>\n${result?.content?.toString()}\nSee Full article : <a href='${url}'>Here</a>`;
+//                 bot.sendMessage(process.env.CHAT_ID, finalMessage, { parse_mode: 'HTML' });
+//             }
+//             const updateItemStatus = await linkModel.updateOne({ _id: items[index]?._id }, { status: 'DONE' });
+//             index++;
+//         } catch (error) {
+//             console.log(error);
+//         }
+//     }, 50000);
+// }
+async function generateWithBackoff(prompt, retries = 5, delay = 2000) {
+    for (let i = 0; i < retries; i++) {
+        try {
+            const response = await model.generateContent(prompt);
+            return response.response.text(); // Success
+        } catch (error) {
+            if (error.status === 429) {  // Handle rate limit error
+                console.log(`Rate limit hit. Retrying in ${delay / 1000} seconds...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay *= 2; // Exponential backoff
+            } else {
+                throw error; // Other errors should not be retried
+            }
+        }
+    }
+    throw new Error("Failed after multiple retries due to rate limits.");
+}
+
 async function summarizeAndSendMintNews(items) {
     let index = 0;
     const intervalId = setInterval(async () => {
@@ -116,20 +171,24 @@ async function summarizeAndSendMintNews(items) {
             let heading = $('#article-0').text();
             let keywordArray = keyWords ? keyWords.split(',').map(item => item.trim()) : null;
             let allPTags = [];
+
             if (checkKeyword(keywordArray, heading)) {
                 $('.storyPage_storyContent__m_MYl').each((index, data) => {
                     allPTags.push($(data).find('p').text());
                 });
+
                 const promptForHeading = "Please summarize this given news Heading in most human readable format within 20 words " + heading;
                 const promptForContent = "Please summarize this given news article in most human readable format within 60 words " + allPTags;
-                const respHeading = await model.generateContent(promptForHeading);
-                const respContent = await model.generateContent(promptForContent);
-                result.heading = respHeading.response.text();
-                result.content = respContent.response.text();
+
+                // Using the backoff function for API calls
+                result.heading = await generateWithBackoff(promptForHeading);
+                result.content = await generateWithBackoff(promptForContent);
+
                 const finalMessage = `<b>${result?.heading}</b>\n${result?.content?.toString()}\nSee Full article : <a href='${url}'>Here</a>`;
                 bot.sendMessage(process.env.CHAT_ID, finalMessage, { parse_mode: 'HTML' });
             }
-            const updateItemStatus = await linkModel.updateOne({ _id: items[index]?._id }, { status: 'DONE' });
+
+            await linkModel.updateOne({ _id: items[index]?._id }, { status: 'DONE' });
             index++;
         } catch (error) {
             console.log(error);
@@ -159,6 +218,45 @@ exports.financialExpressMarketNewsScrap = async (req, res) => {
     }
 }
 
+// async function summarizeAndSendFinancialExpressNews(items) {
+//     let index = 0;
+//     const intervalId = setInterval(async () => {
+//         try {
+//             if (index >= items.length) {
+//                 clearInterval(intervalId);
+//                 return;
+//             }
+//             const url = items[index].url;
+
+//             const scrapedData = await getHtml(url);
+//             const $ = cheerio.load(scrapedData);
+//             let result = {};
+//             let keyWords = $('meta[name="keywords"]').attr('content');
+//             result.keyWords = keyWords;
+//             let heading = $('.heading-three').text();
+//             let keywordArray = keyWords ? keyWords.split(',').map(item => item.trim()) : null;
+//             let allPTags = [];
+//             if (checkKeyword(keywordArray, heading)) {
+//                 $('.article-section').each((index, data) => {
+//                     allPTags.push($(data).find('p').text());
+//                 });
+//                 const promptForHeading = "Please summarize this given news Heading in most human readable format within 20 words " + heading;
+//                 const promptForContent = "Please summarize this given news article in most human readable format within 60 words " + allPTags;
+//                 const respHeading = await model.generateContent(promptForHeading);
+//                 const respContent = await model.generateContent(promptForContent);
+//                 result.heading = respHeading.response.text();
+//                 result.content = respContent.response.text();
+//                 const finalMessage = `<b>${result?.heading}</b>\n${result?.content?.toString()}\nSee Full article : <a href='${url}'>Here</a>`;
+//                 bot.sendMessage(process.env.CHAT_ID, finalMessage, { parse_mode: 'HTML' });
+//             }
+//             const updateItemStatus = await linkModel.updateOne({ _id: items[index]?._id }, { status: 'DONE' });
+//             index++;
+//         } catch (error) {
+//             console.log(error);
+//         }
+//     }, 50000);
+// }
+
 async function summarizeAndSendFinancialExpressNews(items) {
     let index = 0;
     const intervalId = setInterval(async () => {
@@ -177,20 +275,24 @@ async function summarizeAndSendFinancialExpressNews(items) {
             let heading = $('.heading-three').text();
             let keywordArray = keyWords ? keyWords.split(',').map(item => item.trim()) : null;
             let allPTags = [];
+
             if (checkKeyword(keywordArray, heading)) {
                 $('.article-section').each((index, data) => {
                     allPTags.push($(data).find('p').text());
                 });
+
                 const promptForHeading = "Please summarize this given news Heading in most human readable format within 20 words " + heading;
                 const promptForContent = "Please summarize this given news article in most human readable format within 60 words " + allPTags;
-                const respHeading = await model.generateContent(promptForHeading);
-                const respContent = await model.generateContent(promptForContent);
-                result.heading = respHeading.response.text();
-                result.content = respContent.response.text();
+
+                // Using the backoff function for API calls
+                result.heading = await generateWithBackoff(promptForHeading);
+                result.content = await generateWithBackoff(promptForContent);
+
                 const finalMessage = `<b>${result?.heading}</b>\n${result?.content?.toString()}\nSee Full article : <a href='${url}'>Here</a>`;
                 bot.sendMessage(process.env.CHAT_ID, finalMessage, { parse_mode: 'HTML' });
             }
-            const updateItemStatus = await linkModel.updateOne({ _id: items[index]?._id }, { status: 'DONE' });
+
+            await linkModel.updateOne({ _id: items[index]?._id }, { status: 'DONE' });
             index++;
         } catch (error) {
             console.log(error);
