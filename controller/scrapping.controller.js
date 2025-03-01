@@ -134,7 +134,7 @@ async function summarizeAndSendMintNews(items) {
         } catch (error) {
             console.log(error);
         }
-    }, 20000);
+    }, 50000);
 }
 
 exports.financialExpressMarketNewsScrap = async (req, res) => {
@@ -195,7 +195,7 @@ async function summarizeAndSendFinancialExpressNews(items) {
         } catch (error) {
             console.log(error);
         }
-    }, 20000);
+    }, 50000);
 }
 
 // exports.botChecker = async (req, res) => {
