@@ -27,7 +27,7 @@ const safetySettings = [
     },
 ]
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash", safetySettings });
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash", safetySettings });
 
 exports.scrap = async (req, res) => {
     const url = 'https://www.moneycontrol.com/news/business/earnings/itc-q2fy25-results-net-profit-jumps-3-1-to-rs-5078-3-crore-revenue-rises-16-12849642.html'
