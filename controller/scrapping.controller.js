@@ -161,39 +161,70 @@ exports.financialExpressMarketNewsScrap = async (req, res) => {
 
 async function summarizeAndSendFinancialExpressNews(items) {
     let index = 0;
+
     const intervalId = setInterval(async () => {
         try {
             if (index >= items.length) {
                 clearInterval(intervalId);
                 return;
             }
-            const url = items[index].url;
 
+            const url = items[index].url;
             const scrapedData = await getHtml(url);
+
+            // ✅ Check for missing or invalid data
+            if (!scrapedData) {
+                console.warn(`⚠️ No HTML for ${url}, marking as SKIPPED.`);
+                await linkModel.updateOne(
+                    { _id: items[index]?._id },
+                    { status: "DONE" }
+                );
+                index++;
+                return;
+            }
+
             const $ = cheerio.load(scrapedData);
-            let result = {};
-            let keyWords = $('meta[name="keywords"]').attr('content');
-            result.keyWords = keyWords;
-            let heading = $('.heading-three').text();
-            let keywordArray = keyWords ? keyWords.split(',').map(item => item.trim()) : null;
-            let allPTags = [];
+            let keyWords = $('meta[name="keywords"]').attr("content");
+            let heading = $(".heading-three").text();
+            let keywordArray = keyWords
+                ? keyWords.split(",").map((item) => item.trim())
+                : null;
+
             if (checkKeyword(keywordArray, heading)) {
-                $('.article-section').each((index, data) => {
-                    allPTags.push($(data).find('p').text());
+                const allPTags = [];
+                $(".article-section").each((index, data) => {
+                    allPTags.push($(data).find("p").text());
                 });
-                const promptForHeading = "Please summarize this given news Heading in most human readable format within 20 words " + heading;
-                const promptForContent = "Please summarize this given news article in most human readable format within 60 words " + allPTags;
+
+                const promptForHeading =
+                    "Please summarize this given news heading in the most human readable format within 20 words: " +
+                    heading;
+                const promptForContent =
+                    "Please summarize this given news article in the most human readable format within 60 words: " +
+                    allPTags;
+
                 const respHeading = await model.generateContent(promptForHeading);
                 const respContent = await model.generateContent(promptForContent);
-                result.heading = respHeading.response.text();
-                result.content = respContent.response.text();
-                const finalMessage = `<b>${result?.heading}</b>\n${result?.content?.toString()}\nSee Full article : <a href='${url}'>Here</a>`;
-                bot.sendMessage(process.env.CHAT_ID, finalMessage, { parse_mode: 'HTML' });
+
+                const result = {
+                    heading: respHeading.response.text(),
+                    content: respContent.response.text(),
+                };
+
+                const finalMessage = `<b>${result.heading}</b>\n${result.content}\nSee full article: <a href='${url}'>Here</a>`;
+                bot.sendMessage(process.env.CHAT_ID, finalMessage, {
+                    parse_mode: "HTML",
+                });
             }
-            const updateItemStatus = await linkModel.updateOne({ _id: items[index]?._id }, { status: 'DONE' });
+
+            await linkModel.updateOne(
+                { _id: items[index]?._id },
+                { status: "DONE" }
+            );
             index++;
         } catch (error) {
-            console.log(error);
+            console.error("Error during summarize loop:", error);
+            index++;
         }
     }, 20000);
 }

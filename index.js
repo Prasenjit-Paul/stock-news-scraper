@@ -7,6 +7,14 @@ const scrapRoute = require("./routes/scrap.route");
 const linkRoute = require("./routes/linkFetch.route")
 const { isValidUrl } = require('./utils/checkUrl.util');
 
+process.on("unhandledRejection", (reason, promise) => {
+    console.error("Unhandled Rejection:", reason);
+});
+
+process.on("uncaughtException", (err) => {
+    console.error("Uncaught Exception:", err);
+});
+
 app.use(function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept,app-id,x-access-token");
